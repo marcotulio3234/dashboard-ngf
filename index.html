@@ -467,7 +467,7 @@ function renderMap(d){
   Object.entries(map).forEach(([nome,qtd])=>{
     const ll=CITY_LATLON[nome];if(!ll)return;
     const ratio=qtd/max;
-    const rad=2+ratio*4;
+    const rad=8+ratio*24;
     const meso=MESO_MAP[nome]||'Centro Maranhense';
     const cor=MESO_COLORS[meso]?.border||'#00e676';
     const circle=L.circleMarker(ll,{
