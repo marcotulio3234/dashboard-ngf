@@ -437,7 +437,7 @@ function initMap(){
           const code = String(feat.properties?.codarea||feat.properties?.id||'').slice(0,4);
           const nome = MESO_CODES[code] || 'Centro Maranhense';
           const c = MESO_COLORS[nome];
-          return {fillColor:c.fill,color:c.border,weight:1.5,fillOpacity:0.55,opacity:0.9};
+          return {fillColor:c.fill,color:c.border,weight:1.5,fillOpacity:0.45,opacity:0.9,interactive:false};
         },
         onEachFeature:(feat,layer)=>{
           const code = String(feat.properties?.codarea||feat.properties?.id||'').slice(0,4);
@@ -467,7 +467,7 @@ function renderMap(d){
   Object.entries(map).forEach(([nome,qtd])=>{
     const ll=CITY_LATLON[nome];if(!ll)return;
     const ratio=qtd/max;
-    const rad=8+ratio*24;
+    const rad=4+ratio*14;
     const meso=MESO_MAP[nome]||'Centro Maranhense';
     const cor=MESO_COLORS[meso]?.border||'#00e676';
     const circle=L.circleMarker(ll,{
