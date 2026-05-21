@@ -72,8 +72,8 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 
 .map-wrap{position:relative;width:100%;border-radius:10px;overflow:hidden}
 #mapaLeaflet{width:100%;height:480px;border-radius:10px;background:#051a2e}
-.leaflet-tile-pane{filter:saturate(0.6) brightness(0.9) hue-rotate(180deg)}
-.leaflet-container{background:#e8f0f7}
+.leaflet-tile-pane{filter:none}
+.leaflet-container{background:#f0f4f8}
 .leaflet-dark-popup .leaflet-popup-content-wrapper{background:#ffffff;border:1px solid rgba(0,150,100,0.3);border-radius:10px;color:#1a2e3d;box-shadow:0 4px 20px rgba(0,0,0,0.5)}
 .leaflet-dark-popup .leaflet-popup-tip{background:#ffffff}
 .leaflet-dark-popup .leaflet-popup-content{margin:10px 14px}
@@ -100,15 +100,15 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 
 .tbl-wrap{overflow-x:auto}
 .data-table{width:100%;border-collapse:collapse}
-.data-table thead th{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:var(--muted);font-weight:500;padding:0 10px 10px;border-bottom:1px solid var(--border);text-align:left;white-space:nowrap}
-.data-table tbody tr{border-bottom:1px solid var(--border);transition:background .15s}
-.data-table tbody tr:hover{background:rgba(255,255,255,.02)}
+.data-table thead th{font-size:10px;text-transform:uppercase;letter-spacing:.8px;color:#1a2e3d;font-weight:700;padding:0 10px 12px;border-bottom:2px solid rgba(0,0,0,0.12);text-align:left;white-space:nowrap}
+.data-table tbody tr{border-bottom:1px solid rgba(0,0,0,0.07);transition:background .15s}
+.data-table tbody tr:hover{background:rgba(0,180,120,0.06)}
 .data-table tbody tr:last-child{border-bottom:none}
-.data-table td{padding:9px 10px;font-size:12px;color:var(--text);vertical-align:middle}
-.td-muted{color:var(--muted)!important;font-size:11px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:130px}
+.data-table td{padding:10px 12px;font-size:13px;color:#1a2e3d;vertical-align:middle}
+.td-muted{color:#3a6070!important;font-size:12px!important;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:160px}
 .badge-s{background:rgba(29,112,184,.15);color:#5aa9e0;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid rgba(29,112,184,.3)}
 .badge-e{background:rgba(43,182,115,.15);color:#4dd396;padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;border:1px solid rgba(43,182,115,.3)}
-.td-qty{font-family:'Bebas Neue';font-size:15px;letter-spacing:.5px;white-space:nowrap}
+.td-qty{font-family:'Bebas Neue';font-size:17px;letter-spacing:.5px;white-space:nowrap;color:#0d1f2d}
 .link-icon{display:inline-flex;align-items:center;justify-content:center;width:24px;height:24px;border-radius:6px;background:var(--card2);border:1px solid var(--border);color:var(--muted);text-decoration:none;font-size:11px;transition:all .2s}
 .link-icon:hover{background:var(--green);color:#06120f;border-color:var(--green)}
 
@@ -231,7 +231,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
           </div>
           <span class="chart-badge" id="badge-meses">—</span>
         </div>
-        <div style="position:relative;height:240px">
+        <div style="position:relative;height:320px">
           <canvas id="lineChart" role="img" aria-label="Evolução mensal"></canvas>
         </div>
       </div>
@@ -246,7 +246,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
       </div>
     </div>
 
-    <div class="chart-card" id="registros-card" style="margin-bottom:0">
+    <div class="chart-card" id="registros-card" style="margin-bottom:0;box-shadow:0 2px 16px rgba(0,0,0,0.08);border:1px solid rgba(0,0,0,0.1)">
       <div class="chart-header">
         <div>
           <div class="chart-title">Registro de Entregas</div>
@@ -491,10 +491,15 @@ function renderBar(d){
 }
 
 function renderLine(){
-  const map={};DATA.forEach(r=>{if(r.mes)map[r.mes]=(map[r.mes]||0)+r.qtd;});
-  const labels=MESES_DISPONIVEIS.map(m=>MESES_LABEL[m]);
-  const values=MESES_DISPONIVEIS.map(m=>map[m]||0);
-  document.getElementById('badge-meses').textContent=labels.join('–')||'—';
+  const map={};DATA.forEach(r=>{if(r.mes&&r.mes!=='')map[r.mes]=(map[r.mes]||0)+r.qtd;});
+  // Pega o intervalo completo entre o primeiro e último mês com dados
+  const mesesComDados = MESES_ORDEM.filter(m=>map[m]>0);
+  const idxFirst = mesesComDados.length ? MESES_ORDEM.indexOf(mesesComDados[0]) : 0;
+  const idxLast  = mesesComDados.length ? MESES_ORDEM.indexOf(mesesComDados[mesesComDados.length-1]) : 0;
+  const mesesRange = MESES_ORDEM.slice(idxFirst, idxLast+1);
+  const labels = mesesRange.map(m=>MESES_LABEL[m]);
+  const values = mesesRange.map(m=>map[m]||0);
+  document.getElementById('badge-meses').textContent=labels.length?labels[0]+'-'+labels[labels.length-1]:'2026';
   if(linChart)linChart.destroy();
   const ctx=document.getElementById('lineChart').getContext('2d');
   const grad=ctx.createLinearGradient(0,0,0,220);
