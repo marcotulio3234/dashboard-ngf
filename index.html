@@ -231,9 +231,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
           </div>
           <span class="chart-badge" id="badge-meses">—</span>
         </div>
-        <div style="position:relative;height:280px;overflow:hidden">
-  <canvas id="lineChart" role="img" aria-label="Evolução mensal"></canvas>
-</div>
+        <div style="position:relative;height:260px;width:100%">
+          <canvas id="lineChart" style="width:100%!important" role="img" aria-label="Evolução mensal"></canvas>
+        </div>
       </div>
       <div class="chart-card">
         <div class="chart-header">
@@ -467,7 +467,7 @@ function renderMap(d){
   Object.entries(map).forEach(([nome,qtd])=>{
     const ll=CITY_LATLON[nome];if(!ll)return;
     const ratio=qtd/max;
-    const rad=8+ratio*24;
+    const rad=2+ratio*4;
     const meso=MESO_MAP[nome]||'Centro Maranhense';
     const cor=MESO_COLORS[meso]?.border||'#00e676';
     const circle=L.circleMarker(ll,{
@@ -504,7 +504,7 @@ function renderLine(){
   const ctx=document.getElementById('lineChart').getContext('2d');
   const grad=ctx.createLinearGradient(0,0,0,220);
   grad.addColorStop(0,'rgba(43,182,115,0.25)');grad.addColorStop(1,'rgba(43,182,115,0)');
-  linChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{data:values,borderColor:'#2bb673',backgroundColor:grad,borderWidth:2.5,pointBackgroundColor:'#2bb673',pointBorderColor:'#06120f',pointBorderWidth:2,pointRadius:5,fill:true,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{backgroundColor:'#0c1f1a',borderColor:'rgba(43,182,115,0.3)',borderWidth:1,titleColor:'#eafff7',bodyColor:'#9ad9bd',padding:10,callbacks:{label:c=>' '+fmt(c.parsed.y)+' registros'}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#9ad9bd',font:{size:11,family:'Barlow'}},border:{display:false}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#6e8f86',font:{size:10,family:'Barlow'},callback:v=>fmt(v)},border:{display:false}}}}});
+  linChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{data:values,borderColor:'#2bb673',backgroundColor:grad,borderWidth:2.5,pointBackgroundColor:'#2bb673',pointBorderColor:'#06120f',pointBorderWidth:2,pointRadius:5,fill:true,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:10,bottom:10}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#0c1f1a',borderColor:'rgba(43,182,115,0.3)',borderWidth:1,titleColor:'#eafff7',bodyColor:'#9ad9bd',padding:10,callbacks:{label:c=>' '+fmt(c.parsed.y)+' registros'}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#9ad9bd',font:{size:11,family:'Barlow'}},border:{display:false}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#6e8f86',font:{size:10,family:'Barlow'},callback:v=>fmt(v)},border:{display:false}}}}});
 }
 
 function renderColabs(d){
