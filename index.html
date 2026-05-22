@@ -472,7 +472,7 @@ function renderMap(d){
     const cor=MESO_COLORS[meso]?.border||'#00e676';
     const circle=L.circleMarker(ll,{
       radius:rad, fillColor:cor, color:'#051a2e',
-      weight:2, fillOpacity:0.85
+      weight:2, fillOpacity:0.85, pane:'markerPane'
     });
     circle.bindPopup(`<div style="font-family:Barlow,sans-serif;background:#ffffff;color:#1a2e3d;padding:4px 0;min-width:140px"><strong style="color:${cor};font-size:13px">${nome}</strong><br><span style="font-family:Bebas Neue;font-size:18px;letter-spacing:1px">${fmt(qtd)}</span> registros<br><small style="color:#7ecbc4">${meso}</small></div>`,
       {className:'leaflet-dark-popup'});
