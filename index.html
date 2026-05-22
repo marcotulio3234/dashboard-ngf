@@ -50,11 +50,6 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 .filter-btn{padding:5px 14px;border-radius:20px;border:1px solid var(--border);background:var(--card);color:var(--muted);font-size:12px;cursor:pointer;transition:all .2s;font-family:'Barlow'}
 .filter-btn:hover{border-color:var(--green);color:var(--text)}
 .filter-btn.active{background:var(--green);border-color:var(--green);color:#06120f;font-weight:600}
-.year-btn{padding:6px 18px;border-radius:20px;border:2px solid var(--border);background:#fff;color:#1a2e3d;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Barlow'}
-.year-btn:hover{border-color:var(--green)}
-.year-btn.active{background:var(--green);border-color:var(--green);color:#06120f}
-.year-bar{display:flex;gap:8px;margin-bottom:12px;align-items:center}
-.year-label{font-size:10px;color:#4a7a8a;text-transform:uppercase;letter-spacing:.9px;font-weight:600;margin-right:4px}
 
 .kpi-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px}
 .kpi-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:18px 20px;position:relative;overflow:hidden;transition:transform .2s,border-color .2s;animation:fadeUp .4s ease both}
@@ -123,6 +118,13 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 @media(max-width:900px){.kpi-grid{grid-template-columns:repeat(2,1fr)}.charts-row,.bottom-row,.map-row{grid-template-columns:1fr}}
 @media(max-width:520px){.header{flex-direction:column}.kpi-grid{grid-template-columns:repeat(2,1fr)}.logo-solo{height:34px}.logo-tjma{height:42px}}
 @keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+
+.year-bar{display:flex;gap:8px;margin-bottom:12px;align-items:center}
+.year-label{font-size:10px;color:#4a7a8a;text-transform:uppercase;letter-spacing:.9px;font-weight:600;margin-right:4px}
+.year-btn{padding:6px 18px;border-radius:20px;border:2px solid rgba(0,0,0,0.12);background:#fff;color:#1a2e3d;font-size:13px;font-weight:600;cursor:pointer;transition:all .2s;font-family:'Barlow'}
+.year-btn:hover{border-color:var(--green)}
+.year-btn.active{background:var(--green);border-color:var(--green);color:#051a2e}
+.charts-row.full-width{grid-template-columns:1fr}
 </style>
 </head>
 <body>
@@ -170,7 +172,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
       <button class="year-btn" onclick="setYear('2025',this)">2025</button>
       <button class="year-btn" onclick="setYear('2024',this)">2024</button>
     </div>
-    <div class="filter-bar" id="filterBar">
+        <div class="filter-bar" id="filterBar">
+      <span class="filter-label">Período</span>
+    </di>
       <span class="filter-label">Período</span>
     </div>
 
@@ -193,7 +197,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
         <div class="kpi-value" id="kpi-acoes">—</div>
         <div class="kpi-trend neutral">Entregas realizadas</div>
       </div>
-      <div class="kpi-card" style="--accent:var(--gold)">
+      <div class="kpi-card" id="kpi-colab-card" style="--accent:var(--gold)">
         <div class="kpi-icon">👥</div>
         <div class="kpi-label">Colaboradores</div>
         <div class="kpi-value" id="kpi-colab">—</div>
@@ -233,7 +237,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
       </div>
     </div>
 
-    <div class="charts-row">
+    <div class="charts-row" id="charts-row">
       <div class="chart-card">
         <div class="chart-header">
           <div>
@@ -249,11 +253,11 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
       <div class="chart-card">
         <div class="chart-header">
           <div>
-            <div class="chart-title">Desempenho por Colaborador</div>
+            <div id="colab-card-title" class="chart-title">Desempenho por Colaborador</div>
             <div class="chart-sub">Total de registros no período</div>
           </div>
         </div>
-        <div id="colabList"></div>
+        <div id="colabList-wrap"><div id="colabList"></div></div>
       </div>
     </div>
 
@@ -289,8 +293,7 @@ const SHEETS = {
   '2025': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSd2gHCJa-XyQpJT6wK9OfKPhlUbF-AZ54OEarqATVmxwVKzCYGIEkg8MFuMEqOx7Gd-O7vNVVygzzG/pub?gid=1265895998&single=true&output=csv',
   '2024': 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSd2gHCJa-XyQpJT6wK9OfKPhlUbF-AZ54OEarqATVmxwVKzCYGIEkg8MFuMEqOx7Gd-O7vNVVygzzG/pub?gid=1464928933&single=true&output=csv',
 };
-let activeYear = '2026';
-const COL = {data:0,colaborador:1,municipio:2,bairro:3,tipo:4,qtd:5,mulher:6,renda:7,matricula:8,digidoc:9,link:10};
+let activeYear = '2026';const COL = {data:0,colaborador:1,municipio:2,bairro:3,tipo:4,qtd:5,mulher:6,renda:7,matricula:8,digidoc:9,link:10};
 
 const CIDADES_MAPA = {
   "Arame": {x:244.5, y:353.2},
@@ -330,8 +333,8 @@ function parseAno(s){if(!s)return'';s=String(s).trim();const br=s.match(/^(\d{1,
 function fmt(n){return(parseInt(n)||0).toLocaleString('pt-BR');}
 
 async function fetchCSV(){
-  const csv_url = SHEETS[activeYear];
-  const urls=[csv_url,'https://api.allorigins.win/raw?url='+encodeURIComponent(csv_url),'https://corsproxy.io/?'+encodeURIComponent(csv_url)];
+  const u=SHEETS[activeYear];
+  const urls=[u,'https://api.allorigins.win/raw?url='+encodeURIComponent(u),'https://corsproxy.io/?'+encodeURIComponent(u)];
   for(const url of urls){try{const r=await fetch(url);if(!r.ok)continue;const t=await r.text();if(t.includes(',')&&t.length>50)return t;}catch(e){}}
   throw new Error('Não foi possível acessar a planilha.');
 }
@@ -364,20 +367,18 @@ async function loadData(){
 
 function buildFilters(){
   const bar=document.getElementById('filterBar');
-  // 2024 não tem datas — oculta filtro mensal
-  bar.style.display = (activeYear==='2024') ? 'none' : 'flex';
+  bar.style.display=(activeYear==='2024')?'none':'flex';
   bar.innerHTML='<span class="filter-label">Período</span>';
   const all=document.createElement('button');
   all.className='filter-btn active';all.textContent='Todos';all.onclick=()=>setFilter('all',all);
   bar.appendChild(all);
   MESES_DISPONIVEIS.forEach(m=>{const b=document.createElement('button');b.className='filter-btn';b.textContent=MESES_LABEL[m];b.onclick=()=>setFilter(m,b);bar.appendChild(b);});
 }
-function setYear(y, btn){
-  activeYear = y;
+function setYear(y,btn){
+  activeYear=y;
   document.querySelectorAll('.year-btn').forEach(b=>b.classList.remove('active'));
   btn.classList.add('active');
-  activeFilter = 'all';
-  tblPage = 0;
+  activeFilter='all'; tblPage=0;
   loadData();
 }
 function setFilter(f,btn){activeFilter=f;tblPage=0;document.querySelectorAll('.filter-btn').forEach(b=>b.classList.remove('active'));btn.classList.add('active');render();}
@@ -385,6 +386,27 @@ function filtered(){return activeFilter==='all'?DATA:DATA.filter(d=>d.mes===acti
 
 function render(){
   const d=filtered();
+  const is26=activeYear==='2026', is25=activeYear==='2025', is24=activeYear==='2024';
+
+  // KPI Colaboradores
+  const kc=document.getElementById('kpi-colab-card');
+  if(kc) kc.style.display=is26?'':'none';
+
+  // Charts-row: oculto em 2024, sem card de colab em 2025
+  const cr=document.getElementById('charts-row');
+  if(cr){
+    cr.style.display=is24?'none':'grid';
+    cr.className=is25?'charts-row full-width':'charts-row';
+  }
+
+  // Card Desempenho por Colaborador
+  const cw=document.getElementById('colabList-wrap');
+  if(cw) cw.closest('.chart-card') && (cw.closest('.chart-card').style.display=(is25||is24)?'none':'');
+
+  // Cabeçalho Colaborador na tabela
+  const thList=document.querySelectorAll('.data-table thead th');
+  thList.forEach(th=>{ if(th.textContent.trim()==='Colaborador') th.style.display=is26?'':'none'; });
+
   document.getElementById('kpi-total').textContent=fmt(d.reduce((a,r)=>a+r.qtd,0));
   document.getElementById('kpi-munis').textContent=new Set(d.map(r=>r.municipio)).size;
   document.getElementById('kpi-acoes').textContent=d.length;
@@ -491,19 +513,23 @@ function renderMap(d){
   if(markerLayer) markerLayer.clearLayers();
   const map={};d.forEach(r=>{map[r.municipio]=(map[r.municipio]||0)+r.qtd;});
   const vals=Object.values(map);const max=Math.max(...vals,1);
-  Object.entries(map).forEach(([nome,qtd])=>{
-    const ll=CITY_LATLON[nome];if(!ll)return;
-    const ratio=qtd/max;
-    const rad=4+ratio*12;
+  function plotCity(nome,qtd,ll){
+    const ratio=qtd/max; const rad=4+ratio*12;
     const meso=MESO_MAP[nome]||'Centro Maranhense';
     const cor=MESO_COLORS[meso]?.border||'#00e676';
-    const circle=L.circleMarker(ll,{
-      radius:rad, fillColor:cor, color:'#051a2e',
-      weight:2, fillOpacity:0.85, pane:'markerPane'
-    });
-    circle.bindPopup(`<div style="font-family:Barlow,sans-serif;background:#ffffff;color:#1a2e3d;padding:4px 0;min-width:140px"><strong style="color:${cor};font-size:13px">${nome}</strong><br><span style="font-family:Bebas Neue;font-size:18px;letter-spacing:1px">${fmt(qtd)}</span> registros<br><small style="color:#7ecbc4">${meso}</small></div>`,
-      {className:'leaflet-dark-popup'});
+    const circle=L.circleMarker(ll,{radius:rad,fillColor:cor,color:'#fff',weight:1.5,fillOpacity:0.85,pane:'markerPane'});
+    circle.bindPopup(`<div style="font-family:Barlow,sans-serif;background:#fff;color:#1a2e3d;padding:4px 0;min-width:130px"><strong style="color:${cor};font-size:13px">${nome}</strong><br><span style="font-family:'Bebas Neue';font-size:18px">${fmt(qtd)}</span> registros<br><small style="color:#4a7a8a">${meso}</small></div>`,{className:'leaflet-dark-popup'});
     circle.addTo(markerLayer);
+    CITY_LATLON[nome]=ll;
+  }
+  Object.entries(map).forEach(([nome,qtd])=>{
+    if(CITY_LATLON[nome]){ plotCity(nome,qtd,CITY_LATLON[nome]); }
+    else{
+      const q=encodeURIComponent(nome+', Maranhão, Brasil');
+      fetch(`https://nominatim.openstreetmap.org/search?q=${q}&format=json&limit=1&countrycodes=br`)
+        .then(r=>r.json()).then(res=>{ if(res&&res.length>0) plotCity(nome,qtd,[parseFloat(res[0].lat),parseFloat(res[0].lon)]); })
+        .catch(()=>{});
+    }
   });
 }
 
@@ -558,7 +584,7 @@ function renderTable(d){
   document.getElementById('tableBody').innerHTML = rows.map(r=>`<tr>
     <td style="white-space:nowrap;font-weight:600;color:#0d1f2d">${r.municipio}</td>
     <td class="td-muted">${r.bairro.length>28?r.bairro.slice(0,28)+'…':r.bairro}</td>
-    <td class="td-muted">${r.colaborador}</td>
+    ${activeYear==="2026"?`<td class="td-muted">${r.colaborador}</td>`:""}
     <td class="td-qty" style="color:#0d1f2d">${fmt(r.qtd)}</td>
     <td>${r.tipo?`<span class="${r.tipo==='Reurb-S'?'badge-s':'badge-e'}">${r.tipo}</span>`:'-'}</td>
     <td>${r.link?`<a class="link-icon" href="${r.link}" target="_blank" title="Ver matéria">↗</a>`:'<span style="color:var(--sub)">—</span>'}</td>
