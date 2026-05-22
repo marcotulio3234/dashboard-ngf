@@ -464,8 +464,12 @@ function renderMap(d){
   if(markerLayer) markerLayer.clearLayers();
   const map={};d.forEach(r=>{map[r.municipio]=(map[r.municipio]||0)+r.qtd;});
   const vals=Object.values(map);const max=Math.max(...vals,1);
-  Object.entries(map).forEach(([nome,qtd])=>{
-    const ll=CITY_LATLON[nome];if(!ll)return;
+
+  // Processa cada município — usa coordenada salva ou busca no Nominatim
+  const entries = Object.entries(map);
+  let pending = 0;
+
+  function plotCity(nome, qtd, ll){
     const ratio=qtd/max;
     const rad=4+ratio*12;
     const meso=MESO_MAP[nome]||'Centro Maranhense';
@@ -474,9 +478,34 @@ function renderMap(d){
       radius:rad, fillColor:cor, color:'#051a2e',
       weight:2, fillOpacity:0.85, pane:'markerPane'
     });
-    circle.bindPopup(`<div style="font-family:Barlow,sans-serif;background:#ffffff;color:#1a2e3d;padding:4px 0;min-width:140px"><strong style="color:${cor};font-size:13px">${nome}</strong><br><span style="font-family:Bebas Neue;font-size:18px;letter-spacing:1px">${fmt(qtd)}</span> registros<br><small style="color:#7ecbc4">${meso}</small></div>`,
+    circle.bindPopup(`<div style="font-family:Barlow,sans-serif;background:#ffffff;color:#1a2e3d;padding:4px 0;min-width:140px"><strong style="color:${cor};font-size:13px">${nome}</strong><br><span style="font-family:Bebas Neue;font-size:18px;letter-spacing:1px">${fmt(qtd)}</span> registros<br><small style="color:#4a7a8a">${meso}</small></div>`,
       {className:'leaflet-dark-popup'});
     circle.addTo(markerLayer);
+    // Salva para uso futuro nesta sessão
+    CITY_LATLON[nome] = ll;
+  }
+
+  entries.forEach(([nome, qtd])=>{
+    if(CITY_LATLON[nome]){
+      // Coordenada já conhecida — plota direto
+      plotCity(nome, qtd, CITY_LATLON[nome]);
+    } else {
+      // Busca no Nominatim (OpenStreetMap)
+      pending++;
+      const query = encodeURIComponent(nome + ', Maranhão, Brasil');
+      fetch(`https://nominatim.openstreetmap.org/search?q=${query}&format=json&limit=1&countrycodes=br`)
+        .then(r=>r.json())
+        .then(results=>{
+          if(results && results.length > 0){
+            const ll = [parseFloat(results[0].lat), parseFloat(results[0].lon)];
+            plotCity(nome, qtd, ll);
+          } else {
+            console.warn('Município não encontrado no mapa:', nome);
+          }
+        })
+        .catch(e=>console.warn('Erro ao buscar coordenadas de', nome, e))
+        .finally(()=>{ pending--; });
+    }
   });
 }
 
