@@ -63,7 +63,9 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
 .kpi-trend.up{color:var(--green)}.kpi-trend.neutral{color:var(--muted)}
 
 .map-row{display:grid;grid-template-columns:1.1fr 1fr;gap:14px;margin-bottom:20px}
-.charts-row{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:20px;align-items:start}
+.charts-row{display:grid;grid-template-columns:1.5fr 1fr;gap:14px;margin-bottom:20px;align-items:stretch}
+.charts-row .chart-card{display:flex;flex-direction:column}
+#evolucao-card .chart-graph{flex:1;min-height:280px;position:relative;width:100%}
 .chart-card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:20px;animation:fadeUp .4s .2s ease both}
 .chart-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px}
 .chart-title{font-family:'Barlow Condensed';font-weight:600;font-size:14px;color:var(--text);letter-spacing:.3px}
@@ -234,7 +236,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
     </div>
 
     <div class="charts-row" id="charts-row">
-      <div class="chart-card">
+      <div class="chart-card" id="evolucao-card">
         <div class="chart-header">
           <div>
             <div class="chart-title">Evolução Mensal</div>
@@ -242,7 +244,7 @@ body{background:var(--bg);color:var(--text);font-family:'Barlow',sans-serif;font
           </div>
           <span class="chart-badge" id="badge-meses">—</span>
         </div>
-        <div style="position:relative;height:280px;width:100%">
+        <div class="chart-graph">
           <canvas id="lineChart" role="img" aria-label="Evolução mensal"></canvas>
         </div>
       </div>
@@ -629,7 +631,8 @@ function renderLine(){
   document.getElementById('badge-meses').textContent=labels.length?labels[0]+'-'+labels[labels.length-1]:'2026';
   if(linChart)linChart.destroy();
   const ctx=document.getElementById('lineChart').getContext('2d');
-  const grad=ctx.createLinearGradient(0,0,0,220);
+  const gradH=ctx.canvas.clientHeight||280;
+  const grad=ctx.createLinearGradient(0,0,0,gradH);
   grad.addColorStop(0,'rgba(43,182,115,0.25)');grad.addColorStop(1,'rgba(43,182,115,0)');
   linChart=new Chart(ctx,{type:'line',data:{labels,datasets:[{data:values,borderColor:'#2bb673',backgroundColor:grad,borderWidth:2.5,pointBackgroundColor:'#2bb673',pointBorderColor:'#06120f',pointBorderWidth:2,pointRadius:5,fill:true,tension:0.4}]},options:{responsive:true,maintainAspectRatio:false,layout:{padding:{top:10,bottom:10}},plugins:{legend:{display:false},tooltip:{backgroundColor:'#0c1f1a',borderColor:'rgba(43,182,115,0.3)',borderWidth:1,titleColor:'#eafff7',bodyColor:'#9ad9bd',padding:10,callbacks:{label:c=>' '+fmt(c.parsed.y)+' registros'}}},scales:{x:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#9ad9bd',font:{size:11,family:'Barlow'}},border:{display:false}},y:{grid:{color:'rgba(255,255,255,0.04)'},ticks:{color:'#6e8f86',font:{size:10,family:'Barlow'},callback:v=>fmt(v)},border:{display:false}}}}});
 }
